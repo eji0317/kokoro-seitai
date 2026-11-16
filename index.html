@@ -45,7 +45,7 @@
   --ease:cubic-bezier(0.45,0,0.2,1);
   --ease-out:cubic-bezier(0.22,0.61,0.36,1);
   --head-h:6rem;
-  --rv-y:12px;
+  --rv-y:16px;
 }
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-bottom:calc(var(--bar-h) + env(safe-area-inset-bottom) + 12px)}
@@ -81,7 +81,7 @@ h3{font-size:24px}
 .ribbon{position:absolute!important;z-index:0!important;left:0;width:100%;display:block;pointer-events:none}
 
 /* ===== 文章の表示演出（初期状態は表示。JSが画面より下のものにだけ .rv-pending を付ける） ===== */
-.rv{transition:opacity .8s var(--ease-out),transform .8s var(--ease-out);transition-delay:var(--rv-d,0s)}
+.rv{transition:opacity 1.1s cubic-bezier(0.4,0,0.5,1),transform 1.1s cubic-bezier(0.25,0.6,0.3,1);transition-delay:var(--rv-d,0s)}
 .rv.rv-pending{opacity:0;transform:translateY(var(--rv-y))}
 
 /* ===== ① FV ===== */
@@ -99,7 +99,7 @@ h3{font-size:24px}
 .fv-slides{position:relative;overflow:hidden;aspect-ratio:375/430;
   -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 12%,#000 54%,rgba(0,0,0,.55) 77%,transparent 100%);
           mask-image:linear-gradient(to bottom,transparent 0,#000 12%,#000 54%,rgba(0,0,0,.55) 77%,transparent 100%)}
-.fv-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:62% 14%;opacity:0;transition:opacity 1.2s ease-in-out}
+.fv-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:62% 14%;opacity:0;transition:opacity 1.6s ease-in-out}
 .fv-slide.is-on{opacity:1}
 .fv-stop{position:absolute;top:8px;right:28px;z-index:3;font:inherit;font-size:16px;line-height:1.4;letter-spacing:.04em;color:var(--ink-strong);background:#fff;border:1px solid var(--btn-border);border-radius:999px;padding:.4em 1em;cursor:pointer;opacity:0;pointer-events:none}
 .fv-stop:focus-visible{opacity:1;pointer-events:auto}
@@ -152,7 +152,7 @@ h3{font-size:24px}
 .flow-item h3{align-self:center;margin-top:calc((var(--c) - 33px) / 2 - 1px);margin-bottom:4px}
 .flow-item p{grid-column:2}
 .thread{position:absolute;left:calc(var(--c) / 2 - 10px);top:var(--c);width:20px;height:calc(100% - var(--c));overflow:visible}
-.thread path{fill:none;stroke:var(--line);stroke-width:1.6;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset .75s var(--ease)}
+.thread path{fill:none;stroke:var(--line);stroke-width:1.6;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset .9s var(--ease)}
 .thread.is-pending path{stroke-dashoffset:1}
 
 /* ===== ⑤ 持ち帰れるもの ===== */
@@ -270,7 +270,7 @@ h3{font-size:24px}
 }
 /* ===== 幅：PC ===== */
 @media (min-width:1024px){
-  :root{--bar-h:140px;--head-h:9rem;--rv-y:16px;--wrap-w:min(100vw - 80px, var(--w-wide))}
+  :root{--bar-h:140px;--head-h:9rem;--rv-y:20px;--wrap-w:min(100vw - 80px, var(--w-wide))}
   body{font-size:22px}
   .pc-only{display:inline}
   .sp-only{display:none}
@@ -713,7 +713,7 @@ h3{font-size:24px}
     });
   });
 
-  /* ---- ① FVの写真切り替え（D2・8章。v1.3で3秒間隔） ---- */
+  /* ---- ① FVの写真切り替え（D2・8章。v1.6で7秒間隔・1.6秒のフェード） ---- */
   (function () {
     var vis = d.querySelector('.fv-visual');
     if (!vis) return;
@@ -722,9 +722,9 @@ h3{font-size:24px}
     var dotsBox = d.querySelector('.fv-dots');
     var slides = [box.querySelector('.fv-slide')];
     var dots = [];
-    var cur = 0, step = 0, timer = null, due = 0, left = 3000;
+    var cur = 0, step = 0, timer = null, due = 0, left = 7000;
     var stopped = reduce, inView = true;
-    var INTERVAL = 3000;
+    var INTERVAL = 7000;
 
     (vis.getAttribute('data-slides') || '').split(/\s+/).forEach(function (src) {
       if (!src) return;
@@ -840,10 +840,10 @@ h3{font-size:24px}
     jobs.push({ t: li, run: function (anim) { anim ? play(li) : instant(li); } });
   });
 
-  /* 文章：意味のまとまりごとに、下から少し持ち上がりながら表示する（FV・ファシリテーター・フッター・予約バーは対象外） */
+  /* 文章と③の写真：意味のまとまりごとに、下から少し持ち上がりながら1.1秒で表示する（FV・ファシリテーター・フッター・予約バーは対象外） */
   var RV = [
     '#empathy h2', '#empathy .empathy-list li', '#empathy h3', '#empathy .empathy-end p',
-    '.el-text h3', '.el-text p',
+    '.el-fig', '.el-text h3', '.el-text p',
     '#flow h2', '.flow-item',
     '#takeaway h2', '.takeaway-list li', '.takeaway-end',
     '#faq h2', '.qa',
@@ -877,19 +877,19 @@ h3{font-size:24px}
     job.run(anim, delay || 0);
   }
   var io = new IntersectionObserver(function (es) {
-    var n = 0;   /* 同時に入った文章は0.15秒ずつずらす（4段目以降は同じ遅れ） */
+    var n = 0;   /* 同時に入ったものは0.18秒ずつずらす（4段目以降は同じ遅れ） */
     es.forEach(function (e) {
       (byEl.get(e.target) || []).forEach(function (job) {
         if (job.done) return;
         if (e.isIntersecting || e.boundingClientRect.top < 0) {
           var anim = userMoved && e.isIntersecting && e.boundingClientRect.top >= 0;
           var delay = 0;
-          if (job.rv && anim) { delay = Math.min(n, 3) * 0.15; n++; }
+          if (job.rv && anim) { delay = Math.min(n, 3) * 0.18; n++; }
           finish(job, anim, delay);
         }
       });
     });
-  }, { rootMargin: '0px 0px -10% 0px' });
+  }, { rootMargin: '0px 0px -15% 0px' });
   jobs.forEach(function (j) {
     if (!byEl.has(j.t)) { byEl.set(j.t, []); io.observe(j.t); }
     byEl.get(j.t).push(j);
